@@ -48,7 +48,12 @@ def calculate_RMSE(w, X, y):
     """
     rmse = 0
     # TODO: Enter your code here
+    # Predict outputs using linear model: y_pred = Xw
     y_pred = X @ w
+
+    # Compute Root Mean Squared Error:
+    # RMSE = sqrt(mean((y_pred - y)^2))
+    # - Measures average prediction error magnitude
     rmse = np.sqrt(np.mean((y_pred - y) ** 2))
     assert np.isscalar(rmse)
     return rmse
@@ -74,17 +79,30 @@ def average_LR_RMSE(X, y, lambdas, n_folds):
 
     # TODO: Enter your code here. Hint: Use functions 'fit' and 'calculate_RMSE' with training and test data
     # and fill all entries in the matrix 'RMSE_mat'
+
+    # Initialize KFold splitter:
+    # - Splits data into n_folds parts
+    # - Each fold is used once as test set, rest as training set
     kf = KFold(n_splits=n_folds)
 
+    # Loop over each fold (train/test split)
     for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
+        # Split data into training and testing sets using indices
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
+        # Loop over each lambda value
         for lambda_idx, lam in enumerate(lambdas):
+
+            # Train ridge regression model on training data
             w = fit(X_train, y_train, lam)
+
+            # Evaluate model on test data using RMSE
             RMSE_mat[fold_idx, lambda_idx] = calculate_RMSE(w, X_test, y_test)
 
+    # Average RMSE across all folds for each lambda
     avg_RMSE = np.mean(RMSE_mat, axis=0)
+    
     assert avg_RMSE.shape == (5,)
     return avg_RMSE
 
