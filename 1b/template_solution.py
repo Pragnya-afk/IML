@@ -3,8 +3,6 @@
 # First, we import necessary libraries:
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
-from scipy.special import expit
 
 # Add any additional imports here (however, the task is solvable without using 
 # any additional imports)
@@ -28,19 +26,9 @@ def transform_features(X):
     ----------
     X_transformed: matrix of floats: dim = (700,21), transformed input with 21 features
     """
-    #X_transformed = np.zeros((700, 21)) cHANGED TO
-    X_transformed = np.zeros((X.shape[0], 21))
+    X_transformed = np.zeros((700, 21))
     # TODO: Enter your code here
-    X_transformed[:, 0:5]  = X
-    X_transformed[:, 5:10] = X ** 2
-    X_transformed[:, 10:15] = np.exp(X)
-    X_transformed[:, 15:20] = np.cos(X)
-    X_transformed[:, 20]   = 1.0
-    #TODO END
-
-    #assert X_transformed.shape == (700, 21) CHANGED TO
-    assert X_transformed.shape == (X.shape[0], 21)
-    
+    assert X_transformed.shape == (700, 21)
     return X_transformed
 
 
@@ -61,24 +49,6 @@ def fit_logistic_regression(X, y):
     weights = np.zeros((21,))
     X_transformed = transform_features(X)
     # TODO: Enter your code here
-    def nll(w):
-        logits = X_transformed @ w
-        return np.sum(np.logaddexp(0, logits) - y * logits)
-
-    def nll_grad(w):
-        return X_transformed.T @ (expit(X_transformed @ w) - y)
-
-    best_loss, best_w = np.inf, np.zeros(21)
-    rng = np.random.default_rng(42)
-    for w0 in [np.zeros(21)] + [rng.normal(0, 0.1, 21) for _ in range(19)]:
-        res = minimize(nll, w0, jac=nll_grad, method="L-BFGS-B",
-                       options={"maxiter": 10000, "ftol": 1e-15, "gtol": 1e-10})
-        if res.fun < best_loss:
-            best_loss, best_w = res.fun, res.x
-
-    weights = best_w
-    #TODO END
-
     assert weights.shape == (21,)
     return weights
 
@@ -97,25 +67,3 @@ if __name__ == "__main__":
     w = fit_logistic_regression(X, y)
     # Save results in the required format
     np.savetxt("./results.csv", w, fmt="%.12f")
-
-    # ── Quick training accuracy ──────────────────────────────
-    Phi = np.column_stack([X, X**2, np.exp(X), np.cos(X), np.ones(len(X))])
-    probs = expit(Phi @ w)
-    preds = (probs >= 0.5).astype(int)
-    print(f"Training accuracy : {np.mean(preds == y)*100:.2f}%")
-
-    # ── 5-fold CV ────────────────────────────────────────────
-    from sklearn.model_selection import StratifiedKFold
-    kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_accs = []
-
-    for train_idx, val_idx in kf.split(X, y):
-        X_tr, X_val = X[train_idx], X[val_idx]
-        y_tr, y_val = y[train_idx], y[val_idx]
-
-        w_cv = fit_logistic_regression(X_tr, y_tr)
-        Phi_val = np.column_stack([X_val, X_val**2, np.exp(X_val), np.cos(X_val), np.ones(len(X_val))])
-        preds_val = (expit(Phi_val @ w_cv) >= 0.5).astype(int)
-        cv_accs.append(np.mean(preds_val == y_val))
-
-    print(f"5-fold CV accuracy : {np.mean(cv_accs)*100:.2f}% ± {np.std(cv_accs)*100:.2f}%")
