@@ -31,6 +31,7 @@ def transform_features(X):
     #Initializes the empty result matrix:
     X_transformed = np.zeros((X.shape[0], 21))      # 700 is now dynamic (because it didn't fit)
     
+    # TODO: Enter your code here
     # Sets the columns to the processed vectors (since the combined i-th component of every row is column i):
     X_transformed[:, 0:5]  = X              # 5 linear features
     X_transformed[:, 5:10] = X ** 2         # 5 quadratic features
@@ -61,6 +62,7 @@ def fit_logistic_regression(X, y):
     weights = np.zeros((21,))
     X_transformed = transform_features(X)
     
+    # TODO: Enter your code here
     # Compute loss with log(1-sigm(pred)) = log(1+e^{pred})-yz
     def negativeLL(w):
         predicted = X_transformed @ w           # Matrix multiplication (@) of transformed X with weights for model prediction

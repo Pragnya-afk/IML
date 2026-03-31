@@ -27,6 +27,7 @@ def fit(X, y, lam):
     """
     weights = np.zeros((13,))
     # TODO: Enter your code here
+    # ridge regression formula ( 7.12) and solution ( 7.13)
     weights = np.linalg.solve(X.T @ X + lam * np.eye(X.shape[1]), X.T @ y)
     assert weights.shape == (13,)
     return weights
@@ -53,7 +54,7 @@ def calculate_RMSE(w, X, y):
 
     # Compute Root Mean Squared Error:
     # RMSE = sqrt(mean((y_pred - y)^2))
-    # - Measures average prediction error magnitude
+    # Measures average prediction error magnitude
     rmse = np.sqrt(np.mean((y_pred - y) ** 2))
     assert np.isscalar(rmse)
     return rmse
@@ -81,8 +82,8 @@ def average_LR_RMSE(X, y, lambdas, n_folds):
     # and fill all entries in the matrix 'RMSE_mat'
 
     # Initialize KFold splitter:
-    # - Splits data into n_folds parts
-    # - Each fold is used once as test set, rest as training set
+    # Splits data into n_folds parts
+    # Each fold is used once as test set, rest as training set
     kf = KFold(n_splits=n_folds)
 
     # Loop over each fold (train/test split)
