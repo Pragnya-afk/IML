@@ -2,8 +2,10 @@ import numpy as np
 import pandas as pd
 
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import ExtraTreesRegressor
-from sklearn.impute import SimpleImputer
+from sklearn.ensemble import ExtraTreesRegressor, GradientBoostingRegressor
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer, SimpleImputer
+from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
@@ -54,7 +56,11 @@ class Model:
             transformers=[
                 (
                     "num",
-                    SimpleImputer(strategy="median"),
+                    IterativeImputer(
+                        estimator=GradientBoostingRegressor(n_estimators=50, random_state=0),
+                        max_iter=10,
+                        random_state=42,
+                    ),
                     numeric_features,
                 ),
                 (
@@ -71,7 +77,9 @@ class Model:
         )
 
         regressor = ExtraTreesRegressor(
-            n_estimators=1000,
+            n_estimators=5000,
+            max_features=0.6,
+            min_samples_leaf=2,
             random_state=42,
             n_jobs=-1,
         )
